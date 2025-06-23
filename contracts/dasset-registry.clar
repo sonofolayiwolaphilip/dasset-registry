@@ -282,3 +282,26 @@
   )
 )
 
+;; ===== Additional Features Extension =====
+;; These functions can be added to the existing contract without modifying the original code
+
+;; Additional error codes for new functionality
+(define-constant invalid-access-grant-exception (err u409))
+(define-constant permission-already-exists-exception (err u410))
+
+
+
+;; Helper function for storage calculation
+(define-private (get-asset-file-size-by-owner (asset-id uint))
+  (match (map-get? digital-asset-registry-storage { asset-identifier-key: asset-id })
+    asset-data (if (is-eq (get asset-owner-principal asset-data) tx-sender)
+                  (get asset-file-size-bytes asset-data)
+                  u0)
+    u0
+  )
+)
+
+;; Check if an asset exists (simple existence check)
+(define-read-only (asset-exists (asset-identifier-key uint))
+  (ok (check-asset-exists-in-registry asset-identifier-key))
+)
